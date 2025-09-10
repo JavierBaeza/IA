@@ -54,6 +54,8 @@ def main():
         # 1) Jugador se mueve al azar (o se queda en su celda)
         movs = vecinos(player) + [player]
         player = random.choice(movs)
+        if player == npc:
+            player = random.choice(vecinos(player) + [player])
 
         # 2) NPC decide por reglas de reflejo simple
         d = manhattan(npc, player)
@@ -69,6 +71,8 @@ def main():
             movs = vecinos(npc) + [npc]
             npc = random.choice(movs)
             log = "NPC WANDER (deambula)"
+        if npc == player:
+            npc = random.choice(vecinos(npc) + [npc])
 
         # mostrar estado del turno
         dibujar(player, npc, t, log, hp_player)
