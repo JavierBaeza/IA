@@ -58,7 +58,7 @@ def main():
         # 2) NPC decide por reglas de reflejo simple
         d = manhattan(npc, player)
         log = ""
-        if d == 1:  # adyacente ⇒ ataca
+        if d == 1 or d == 0:  # adyacente ⇒ ataca
             dmg = random.randint(2,5)
             hp_player = max(0, hp_player - dmg)
             log = f"NPC ATTACK (daño {dmg})"
