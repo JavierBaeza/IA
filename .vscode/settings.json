@@ -3,7 +3,7 @@
   "editor.formatOnSave": true,
   "[python]": {
     "editor.codeActionsOnSave": {
-      "source.fixAll": true
+      "source.fixAll": "explicit"
     }
   },
   "python.linting.enabled": true,

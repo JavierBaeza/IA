@@ -1,10 +1,9 @@
 # npc_reflejo_con_hp_grid.py
 # NPC de reflejo simple en un grid sin obstáculos, con vida del jugador.
-# Requisitos: Python 3.x
 
 import random #Movimientos aleatorios
 
-W, H = 10, 7  # ancho x alto del grid (10 columnas, 7 filas) 
+W, H = 5, 5  # ancho x alto del grid (5 columnas, 5 filas)
 
 def manhattan(a, b):
     """Distancia Manhattan: casillas que separan dos posiciones (sin diagonales)."""
@@ -33,6 +32,8 @@ def paso_hacia(src, dst):
 def dibujar(player, npc, turno, log, hp_player):
     """Imprime el estado actual del grid en consola."""
     print(f"Turno {turno} | {log}")
+
+   
     for y in range(H):
         fila = ""
         for x in range(W):
@@ -45,20 +46,16 @@ def dibujar(player, npc, turno, log, hp_player):
 
 def main():
     random.seed(1)         # semilla para reproducibilidad
-    player = (2, 2)        # posición inicial del jugador
-    npc    = (7, 4)        # posición inicial del NPC
+    player = (4, 4)        # posición inicial del jugador
+    npc    = (1, 2)        # posición inicial del NPC
     hp_player = 20         # vida inicial del jugador
     MAX_TURNS = 50         # máximo de turnos para evitar bucle infinito
 
     for t in range(1, MAX_TURNS+1):
-        # 1) Jugador se mueve al azar (o se queda en su celda)
-        movs = vecinos(player) + [player]
-        player = random.choice(movs)
-
         # 2) NPC decide por reglas de reflejo simple
         d = manhattan(npc, player)
         log = ""
-        if d == 1:  # adyacente ⇒ ataca
+        if d == 1 or d == 0:  # adyacente ⇒ ataca
             dmg = random.randint(2,5)
             hp_player = max(0, hp_player - dmg)
             log = f"NPC ATTACK (daño {dmg})"
@@ -70,8 +67,20 @@ def main():
             npc = random.choice(movs)
             log = "NPC WANDER (deambula)"
 
+        print(d , " distancia")
+
         # mostrar estado del turno
         dibujar(player, npc, t, log, hp_player)
+
+        movimiento = input("Movimiento del jugador (WASD):").strip().upper()
+        if(movimiento == 'W'):
+            player = (player[0], player[1]-1)
+        elif(movimiento == 'S'):
+            player = (player[0], player[1]+1)
+        elif(movimiento == 'A'):
+            player = (player[0]-1, player[1])
+        elif(movimiento == 'D'):
+            player = (player[0]+1, player[1])
 
         # condición de fin
         if hp_player == 0:
