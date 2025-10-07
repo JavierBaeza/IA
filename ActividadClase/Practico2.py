@@ -1,10 +1,8 @@
-# Importar deque desde collections para manejar la cola de BFS
-from collections import deque
-# Importar heapq para manejar la cola de prioridad de A* (montículo)
-import heapq
+from collections import deque  # Importa la clase deque de la librería collections, que proporciona una cola eficiente.
+import heapq  # Importa la librería heapq para manejar una cola de prioridad (min-heap) en A*.
 
-# Representación del edificio como una cuadrícula
-# 1 = camino libre, 0 = bloqueado, 'E' = salida de emergencia
+# Representación del edificio como una matriz donde 1 es una celda accesible y 0 es una celda bloqueada.
+# La letra 'E' representa el objetivo en la esquina inferior derecha.
 edificio = [
     [1, 0, 1, 1, 1],
     [1, 0, 1, 0, 1],
@@ -13,147 +11,122 @@ edificio = [
     [1, 1, 1, 1, 'E']
 ]
 
-# Definir las coordenadas de inicio y objetivo (salida de emergencia)
-start = (0, 0)  # Punto de inicio (arriba a la izquierda)
-goal = (4, 4)   # Salida de emergencia (abajo a la derecha)
+# Coordenadas del inicio (esquina superior izquierda) y objetivo (esquina inferior derecha)
+start = (0, 0)
+goal = (4, 4)
 
-# Función BFS (Breadth-First Search)
+# Algoritmo de búsqueda en anchura (BFS)
 def bfs(grid, start, goal):
-    # Obtener el número de filas y columnas del grid
-    rows, cols = len(grid), len(grid[0])
-    # Inicializar la cola (deque) con el nodo inicial y la ruta desde el inicio
-    queue = deque([(start, [start])])  # La cola contiene una tupla: (nodo actual, ruta)
-    # Conjunto de nodos visitados para evitar visitar el mismo nodo más de una vez
-    visited = set()
+    rows, cols = len(grid), len(grid[0])  # Determina las dimensiones de la cuadrícula (número de filas y columnas).
+    queue = deque([(start, [start])])  # Crea una cola (deque) que almacenará las posiciones y el camino recorrido hasta ahí.
+    visited = set()  # Conjunto para rastrear las celdas visitadas y evitar ciclos.
 
-    # Mientras haya nodos en la cola por explorar
+    # Bucle principal del BFS
     while queue:
-        # Extraer el primer nodo de la cola
-        (x, y), path = queue.popleft()
-
-        # Si hemos alcanzado el objetivo, retornamos la ruta
-        if (x, y) == goal:
+        (x, y), path = queue.popleft()  # Extrae el primer elemento de la cola: las coordenadas y el camino hasta ese punto.
+        
+        if (x, y) == goal:  # Si hemos llegado al objetivo, devuelve el camino encontrado.
             return path
 
-        # Si el nodo ya ha sido visitado, lo saltamos
-        if (x, y) in visited:
+        if (x, y) in visited:  # Si ya hemos visitado este punto, lo saltamos.
             continue
-        visited.add((x, y))  # Marcar el nodo como visitado
+        visited.add((x, y))  # Marca el punto como visitado.
 
-        # Explorar los vecinos (arriba, abajo, izquierda, derecha)
+        # Explora las 4 direcciones (arriba, abajo, izquierda, derecha)
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            # Verificar que el vecino esté dentro del grid y no sea un bloqueado (0)
+            nx, ny = x + dx, y + dy  # Calcula las nuevas coordenadas.
+            # Asegura que las nuevas coordenadas estén dentro de la cuadrícula y sean accesibles.
             if 0 <= nx < rows and 0 <= ny < cols and grid[nx][ny] != 0 and (nx, ny) not in visited:
-                # Añadir el vecino a la cola con la nueva ruta
-                queue.append(((nx, ny), path + [(nx, ny)]))
+                queue.append(((nx, ny), path + [(nx, ny)]))  # Añade la nueva posición a la cola con el camino actualizado.
 
-    return None  # Si no se encuentra una ruta
+    return None  # Si no se encuentra la ruta, devuelve None.
 
-# Función DFS (Depth-First Search)
+# Algoritmo de búsqueda en profundidad (DFS)
 def dfs(grid, start, goal, visited=None, path=None):
-    # Si no hay un conjunto de nodos visitados, inicializarlo
-    if visited is None:
+    if visited is None:  # Si no se ha pasado un conjunto de visitados, crea uno vacío.
         visited = set()
-    # Si no hay una lista de camino, inicializarla
-    if path is None:
+    if path is None:  # Si no se ha pasado un camino, comienza con uno vacío.
         path = []
 
-    x, y = start  # Extraer las coordenadas del nodo actual
+    x, y = start  # Asigna las coordenadas del nodo actual.
 
-    # Si hemos alcanzado el objetivo, retornar la ruta
-    if (x, y) == goal:
+    if (x, y) == goal:  # Si hemos llegado al objetivo, retorna el camino recorrido.
         return path + [goal]
 
-    # Marcar el nodo actual como visitado
-    visited.add((x, y))
+    visited.add((x, y))  # Marca el nodo actual como visitado.
 
-    # Explorar los vecinos (arriba, abajo, izquierda, derecha)
-    neighbors = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Direcciones posibles
+    neighbors = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Definición de las 4 direcciones posibles.
     for dx, dy in neighbors:
-        nx, ny = x + dx, y + dy
-        # Comprobar que el vecino está dentro del grid y no ha sido visitado ni es un bloqueado
+        nx, ny = x + dx, y + dy  # Calcula las nuevas coordenadas.
+        # Asegura que las nuevas coordenadas estén dentro de la cuadrícula y sean accesibles.
         if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] != 0 and (nx, ny) not in visited:
-            # Llamar recursivamente a DFS para explorar el vecino
-            result = dfs(grid, (nx, ny), goal, visited, path + [(x, y)])
-            if result:  # Si se encuentra un resultado (una ruta)
+            result = dfs(grid, (nx, ny), goal, visited, path + [(x, y)])  # Llama recursivamente al DFS.
+            if result:  # Si se encuentra una ruta, la retorna.
                 return result
 
-    return None  # Si no se encuentra una ruta
+    return None  # Si no se encuentra la ruta, devuelve None.
 
-# Función A* (A-star)
+# Algoritmo A* (A-star)
 def a_star(grid, start, goal):
-    # Inicializar la lista abierta (open list) que contiene nodos por explorar
-    open_list = []
-    # Agregar el nodo de inicio con costo 0 a la lista abierta
-    heapq.heappush(open_list, (0, start))  # (costo estimado, posición del nodo)
+    open_list = []  # Lista abierta para la exploración (se usará como cola de prioridad).
+    heapq.heappush(open_list, (0, start))  # Añade el nodo inicial con un costo de 0.
     
-    # Diccionarios para rastrear el camino y costos de los nodos
-    came_from = {}  # De qué nodo venimos para reconstruir el camino
-    g_costs = {start: 0}  # Costo de llegar al nodo desde el inicio
-    f_costs = {start: heuristic(start, goal)}  # Costo estimado total (g + heurística)
+    came_from = {}  # Diccionario para reconstruir el camino recorrido.
+    g_costs = {start: 0}  # Diccionario de costos g (distancia desde el inicio).
+    f_costs = {start: heuristic(start, goal)}  # Diccionario de costos f (g + heurística).
 
-    # Mientras haya nodos por explorar en la lista abierta
+    # Bucle principal del A*
     while open_list:
-        # Extraer el nodo con el menor costo total (f_cost)
-        _, current = heapq.heappop(open_list)
+        _, current = heapq.heappop(open_list)  # Extrae el nodo con el menor costo f de la lista abierta.
 
-        # Si hemos llegado al objetivo, reconstruimos el camino y lo retornamos
-        if current == goal:
+        if current == goal:  # Si el nodo actual es el objetivo, reconstruye el camino.
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
-            return path[::-1]  # Devolver la ruta en el orden correcto
+            return path[::-1]  # Devuelve el camino invertido (de inicio a fin).
 
-        x, y = current
-        # Explorar los vecinos (arriba, abajo, izquierda, derecha)
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            # Verificar que el vecino esté dentro del grid y no sea bloqueado
+        x, y = current  # Extrae las coordenadas actuales.
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Explora las 4 direcciones.
+            nx, ny = x + dx, y + dy  # Calcula las nuevas coordenadas.
+            # Asegura que las nuevas coordenadas estén dentro de la cuadrícula y sean accesibles.
             if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] != 0:
-                # Calcular el costo temporal para llegar al vecino
-                tentative_g = g_costs[(x, y)] + 1
+                tentative_g = g_costs[(x, y)] + 1  # Calcula el costo g del nuevo nodo.
+                # Si el nodo no está en g_costs o se encontró un camino más corto, actualiza los costos.
                 if (nx, ny) not in g_costs or tentative_g < g_costs[(nx, ny)]:
-                    # Actualizar los costos y el camino de llegada
-                    came_from[(nx, ny)] = (x, y)
-                    g_costs[(nx, ny)] = tentative_g
-                    f_costs[(nx, ny)] = tentative_g + heuristic((nx, ny), goal)
-                    heapq.heappush(open_list, (f_costs[(nx, ny)], (nx, ny)))
+                    came_from[(nx, ny)] = (x, y)  # Registra el nodo anterior.
+                    g_costs[(nx, ny)] = tentative_g  # Actualiza el costo g.
+                    f_costs[(nx, ny)] = tentative_g + heuristic((nx, ny), goal)  # Actualiza el costo f.
+                    heapq.heappush(open_list, (f_costs[(nx, ny)], (nx, ny)))  # Añade el nodo a la lista abierta.
 
-    return None  # Si no se encuentra una ruta
+    return None  # Si no se encuentra la ruta, devuelve None.
 
-# Heurística para A* (distancia Manhattan)
+# Función heurística (distancia Manhattan)
 def heuristic(pos, goal):
-    # Distancia Manhattan: suma de las diferencias absolutas de las coordenadas
-    return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+    return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])  # Calcula la distancia Manhattan entre el nodo actual y el objetivo.
 
-# Función para imprimir el resultado de la ruta encontrada
+# Función para imprimir el resultado de cada algoritmo
 def print_result(path, algorithm_name):
-    # Si se encuentra una ruta, imprimirla
-    if path:
+    if path:  # Si se encuentra un camino
         print(f"\nRuta encontrada usando {algorithm_name}:")
-        print(" -> ".join([f"({x}, {y})" for x, y in path]))  # Mostrar las coordenadas de la ruta
-    else:
+        print(" -> ".join([f"({x}, {y})" for x, y in path]))  # Imprime las coordenadas del camino.
+    else:  # Si no se encuentra ruta
         print(f"\nNo se encontró ruta usando {algorithm_name}.")
 
-# Función principal para ejecutar todos los algoritmos
+# Función para ejecutar todos los algoritmos de búsqueda
 def run_search():
-    # Ejecutar BFS
     print("Ejecutando BFS...")
-    bfs_result = bfs(edificio, start, goal)
+    bfs_result = bfs(edificio, start, goal)  # Ejecuta BFS
     print_result(bfs_result, "BFS")
 
-    # Ejecutar DFS
     print("Ejecutando DFS...")
-    dfs_result = dfs(edificio, start, goal)
+    dfs_result = dfs(edificio, start, goal)  # Ejecuta DFS
     print_result(dfs_result, "DFS")
 
-    # Ejecutar A*
     print("Ejecutando A*...")
-    a_star_result = a_star(edificio, start, goal)
+    a_star_result = a_star(edificio, start, goal)  # Ejecuta A*
     print_result(a_star_result, "A*")
 
-# Ejecutar la función principal
+# Llamada principal a la función para ejecutar la búsqueda cuando el script se ejecute
 if __name__ == "__main__":
     run_search()
